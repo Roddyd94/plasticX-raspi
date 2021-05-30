@@ -7,7 +7,7 @@ class IRSensor(SmoothedInputDevice):
     def __init__(self, pin, *args, **kwargs):
         super().__init__(pin, *args, **kwargs)
 
-    def run(self):
+    def run_sensor(self):
         while True:
             print("Sensor:", self.value())
             time.sleep(1)
@@ -27,7 +27,7 @@ class SensorThread(threading.Thread):
 
 ir_sensor = IRSensor(4)
 
-ir_thread = SensorThread(ir_sensor.run)
+ir_thread = SensorThread(ir_sensor.run_sensor)
 qr_thread = SensorThread(run_qr)
 
 ir_thread.start()
