@@ -1,4 +1,5 @@
 import threading
+import time
 from gpiozero import SmoothedInputDevice
 
 
@@ -9,6 +10,7 @@ class IRSensor(SmoothedInputDevice):
     def run(self):
         while True:
             print("Sensor:", self.value())
+            time.sleep(1)
 
 
 def run_qr():
