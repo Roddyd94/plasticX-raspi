@@ -17,7 +17,7 @@ def run_qr():
         print("QR:", qr_text)
 
 
-class SensorRunner(threading.Thread):
+class SensorThread(threading.Thread):
     def __init__(self, run):
         super().__init__()
         self.run = run
@@ -25,5 +25,8 @@ class SensorRunner(threading.Thread):
 
 ir_sensor = IRSensor(4)
 
-SensorRunner(ir_sensor.run)
-SensorRunner(run_qr)
+ir_thread = SensorThread(ir_sensor.run)
+qr_thread = SensorThread(run_qr)
+
+ir_thread.start()
+qr_thread.start()
