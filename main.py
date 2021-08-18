@@ -3,7 +3,6 @@ import sys
 import time
 from urllib import request
 from urllib import parse
-#from urllib import response
 import json
 import env
 import smbus
@@ -74,15 +73,17 @@ class I2CThread(threading.Thread):
                 self.buf[i] = self.bus.read_i2c_block_data(self.addr, 0, 2)[1]
             adc = sum(self.buf) / len(self.buf)
             print(adc)
-            if adc < 90:
-                self.send(False)
-            elif adc > 110:
+            if adc < 90 and self.state == False:
+                self.state = True
                 self.send(True)
-            time.sleep(10)
+            elif adc > 110 and self.state == True:
+                self.state = False
+                self.send(False)
+            time.sleep(0.1)
 
     def send(self, is_full):
         print(f'ReturnBox {self.id} is ' + ('full' if is_full else 'not full'))
-        data = parse.urlencode({'isFull': 'true' if is_full else 'false', 'isWorking': 'true'})
+        data = parse.urlencode({'isWorking': 'true' if is_full else 'false'})
         req = request.Request(f'{self.baseUrl}{self.path}{self.id}', data=bytes(data, 'UTF-8'), method='PUT')
         try:
             with request.urlopen(req) as response:
@@ -102,7 +103,15 @@ def main():
     ir_thread.start()
     while True:
         #qr_thread.send()
-        time.sleep(5)
+        data = parse.urlencode({'isConnected': 'true'})
+        req = request.Request(f'{env.baseUrl}{env.pathReturnBoxUpdate}{env.id}', data=bytes(data, 'UTF-8'), method='PUT')
+        try:
+            with request.urlopen(req) as response:
+                res = json.loads(response.read().decode('utf-8'))
+                print(res)
+        except:
+            print(sys.exc_info()[0])
+        time.sleep(600)
 
 
 
